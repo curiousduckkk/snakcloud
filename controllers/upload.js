@@ -107,7 +107,7 @@ const upload = {
             }
         
             console.log(file.uploaderName);
-            if (file.access.includes(req.user._id)) {
+            if (req.user.user == file.uploaderName) {
                 try {
                     let type = "image/png";
                     if (file.fileType == "jpg" || file.fileType == "jpeg"){

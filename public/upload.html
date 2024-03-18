@@ -1,45 +1,59 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload</title>
+    <title>Upload PNG Image</title>
 </head>
 <body>
-    <h1>Upload a File</h1>
+    <h2>Upload PNG Image</h2>
     <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" name="fileInput" required>
+        <input type="file" id="fileInput" accept="image/png" name="fileInput">
         <button type="submit">Upload</button>
     </form>
 
-    <div id="status"></div>
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); 
-            
+            event.preventDefault();
+
             const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0]; 
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+
             try {
+                const token = localStorage.getItem('token'); // Retrieve token from local storage
+                if (!token) {
+                    alert('Token not found. Please log in.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('fileInput', file);
+                formData.append('fileName', file.name);
+
                 const response = await fetch('http://127.0.0.1:8080/uploadfile', {
                     method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: formData
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('status').textContent = 'File uploaded successfully.';
+                    console.log('File uploaded successfully');
+                    // Handle successful upload
                 } else {
-                    throw new Error('Failed to upload file.');
+                    console.error('Failed to upload file');
+                    // Handle failed upload
                 }
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('status').textContent = 'Error uploading file.';
+                console.error('Error uploading file:', error);
+                // Handle error
             }
         });
     </script>
 </body>
-</html> -->
+</html>

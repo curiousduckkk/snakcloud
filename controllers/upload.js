@@ -3,8 +3,7 @@ const User = require("../models/User");
 const File = require("../models/File");
 
 const upload = {
-    GetUploadURL: async (req, res) => {
-        const { file } = req.body;
+    GetUploadURL: async (req, res, fileName, fileType) => {
         const requestBody = {
             operationName: "GetUploadUrl",
             variables: {
@@ -15,8 +14,8 @@ const upload = {
 
         const headers = {
             'Content-Type': 'application/json',
-            'Cookie': 'sc-a-nonce=2666e29c-8142-4ac2-b37b-0f20339058c0',
-            'Authorization': 'Bearer hCgwKCjE3MDk1NzUyMTESzAEib8irgpgL40c3_eUB6W5KE-IXSDFL3aOiVLujblEBDewZP7TjOMRlenBseEp86RaC5SCYwIHACQwRtJpEKgCbbMy92fG2ZQroyT1mhDB5IPSdSAI7-Q-78PAiWRxcXj3WyCo36JLqDjSqORm8XuhKsMjm-hQBmWoU1OCqO0zp8bbAeJ6IGUxPjfrpiOY7Mb-SGlwbwuAEgYs4N8u_DY6TuNi8VJcPtukUsMOWhB1MtJ13DDMOzZraZqoTIjJ0-R-pUu6numkrkpR7I7s',
+            'Cookie': 'sc-a-nonce=2666e29c-8142-4ac2-b37b-0f20339058c0;',
+            'Authorization': 'Bearer hCgwKCjE3MDk1NzUyMTESzAHfiXKyn0nnQ8Cun_GOuExMhGuZaWB0bAWMCh0WzdrPL5bxEF9uRb4Po66sO2hiNP1-FayP3luNvnIeEQqAVqai69_rFnAd_pXXb3PsgJTb5OPRKyXfVYO9CB2khZJntV84v9YApRL7csAQh3vSvej1yjNBp3i3sGxFILqo49Zja9pEPV4MeOSGS1gISbScfcpk1FnzXxXp_nOl37VYUVdwRYoUKKGWNoPaC5_ZPXrVq-zQ0uHiVf_yzXHxYnV5OcMpqwS2M9kS6HhSAOU',
             'Origin': 'https://my.snapchat.com',
             'Referer': 'https://my.snapchat.com/'
         };
@@ -24,10 +23,11 @@ const upload = {
         try {
             const response = await axios.post('https://us-east1-aws.api.snapchat.com/gravy-gateway/graphql', requestBody, { headers });
             const data = response.data;
+            const fileType = await upload.Extension(req, res, fileName);
             const uploadUrl = data.data.uploadUrl.uploadUrl;
             const contentUrl = data.data.uploadUrl.contentUrl;
             const userName = req.user.user;
-            const newFile = new File({ uploaderName: userName, uploadUrl: uploadUrl, contentUrl: contentUrl });
+            const newFile = new File({ fileName: fileName, fileType: fileType, uploaderName: userName, uploadUrl: uploadUrl, contentUrl: contentUrl });
             await newFile.save();
             return uploadUrl;
         } catch (error) {
@@ -36,12 +36,27 @@ const upload = {
         }
     },
 
-    UploadFile: async (req, res) => {
+    Extension: async(req, res, fileName) => {
         try {
-            const uploadUrl = await upload.GetUploadURL(req, res); // Call GetUploadURL from upload object
+            const parts = fileName.split('.');
+            if (parts.length > 1) {
+                const extension = parts[parts.length - 1];
+                return extension;
+            } else {
+                throw new Error('Failed to upload file'); // Throw error if no extension found
+            }
+        } catch (error) {
+            console.error('Error extracting extension:', error);
+            throw error;
+        }
+    },
+
+    UploadFile: async (req, res) => {
+        const { fileName, fileData } = req.body;
+        try {
+            const uploadUrl = await upload.GetUploadURL(req, res, fileName); // Call GetUploadURL from upload object
             console.log('Upload URL:', uploadUrl);
-            const file = req.body.file; // Assuming file is part of the request body
-            const response = await axios.put(uploadUrl, file, {
+            const response = await axios.put(uploadUrl, fileData, {
                 headers: {
                     'Content-Type': "image/png" // Set the content type header based on file type
                 }
@@ -54,7 +69,7 @@ const upload = {
                 throw new Error('Failed to upload file');
             }
         } catch (error) {
-            console.error('Error uploading file:');
+            console.error('Error uploading file:', error);
             throw error;
         }
     }

@@ -1,6 +1,7 @@
 const axios = require('axios');
 const File = require("../models/File");
 const mongoose = require('mongoose');
+const User = require('../models/User');
 const ObjectId = mongoose.Types.ObjectId;
 
 
@@ -79,7 +80,7 @@ const upload = {
             if (response.status === 200) {
                 console.log('File uploaded successfully');
                 const file = await File.findOne({ uploadUrl })
-                let link = "http://localhost:8080/download/"+file._id;
+                let link = "https://snakcloud.onrender.com/download/"+file._id;
                 return res.status(200).json({
                     "link":link
                 });
@@ -131,6 +132,43 @@ const upload = {
         throw error;
     }
     },
+
+    Access: async (req, res) => {
+        const { id, username } = req.body;
+    
+        // Validate the file ID
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "Invalid file id" });
+        }
+    
+        try {
+            const file = await File.findById(id);
+    
+            if (!file) {
+                return res.status(404).json({ error: "File not found" });
+            }
+    
+            if (file.uploaderName !== req.user.user) {
+                return res.status(403).json({ error: "Unauthorized to grant access" });
+            }
+    
+            const user = await User.findOne({ username });
+    
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+    
+            file.access.push(user._id);
+    
+            await file.save();
+    
+            return res.status(200).json({ message: "Access granted successfully" });
+        } catch (error) {
+            console.error("Error granting access:", error);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+    }
+    
 };
 
 module.exports = upload;

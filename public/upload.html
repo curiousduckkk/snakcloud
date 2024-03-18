@@ -13,47 +13,54 @@
     </form>
 
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Please select a file.');
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Please select a file.');
+        return;
+    }
+
+    try {
+        const reader = new FileReader();
+        reader.onload = async function() {
+            const base64Data = reader.result.split(',')[1]; // Extract Base64 data
+            const requestData = {
+                fileName: file.name,
+                fileData: base64Data
+            };
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Token not found. Please log in.');
                 return;
             }
 
-            try {
-                const token = localStorage.getItem('token'); // Retrieve token from local storage
-                if (!token) {
-                    alert('Token not found. Please log in.');
-                    return;
-                }
+            const response = await fetch('http://127.0.0.1:8080/uploadfile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(requestData)
+            });
 
-                const formData = new FormData();
-                formData.append('fileInput', file);
-                formData.append('fileName', file.name);
-
-                const response = await fetch('http://127.0.0.1:8080/uploadfile', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-
-                if (response.ok) {
-                    console.log('File uploaded successfully');
-                    // Handle successful upload
-                } else {
-                    console.error('Failed to upload file');
-                    // Handle failed upload
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                // Handle error
+            if (response.ok) {
+                console.log('File uploaded to your API successfully');
+                // Handle successful upload
+            } else {
+                console.error('Failed to upload file to your API');
+                // Handle failed upload
             }
-        });
+        };
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('Error:', error);
+        // Handle error
+    }
+});
     </script>
 </body>
 </html>

@@ -54,14 +54,17 @@ const upload = {
     UploadFile: async (req, res) => {
         const { fileName, fileData } = req.body;
         try {
+            // Decode base64 file data
+            const decodedFileData = Buffer.from(fileData, 'base64');
+        
             const uploadUrl = await upload.GetUploadURL(req, res, fileName); // Call GetUploadURL from upload object
             console.log('Upload URL:', uploadUrl);
-            const response = await axios.put(uploadUrl, fileData, {
+            const response = await axios.put(uploadUrl, decodedFileData, {
                 headers: {
                     'Content-Type': "image/png" // Set the content type header based on file type
                 }
             });
-
+        
             if (response.status === 200) {
                 console.log('File uploaded successfully');
                 return response.data;

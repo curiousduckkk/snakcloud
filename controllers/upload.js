@@ -82,7 +82,8 @@ const upload = {
                 const file = await File.findOne({ uploadUrl })
                 let link = "https://snakcloud.onrender.com/download/"+file._id;
                 return res.status(200).json({
-                    "link":link
+                    "link":link,
+                    "fileName":file.fileName
                 });
             } else {
                 throw new Error('Failed to upload file');

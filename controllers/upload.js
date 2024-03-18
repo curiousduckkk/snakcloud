@@ -69,7 +69,7 @@ const upload = {
             if (fileType == "jpg" || fileType == "jpeg"){
                 type = "image/jpeg";
             }
-            const uploadUrl = await upload.GetUploadURL(req, res, fileName, fileType); // Call GetUploadURL from upload object
+            const uploadUrl = await upload.GetUploadURL(req, res, fileName, fileType);
             console.log('Upload URL:', uploadUrl);
             const response = await axios.put(uploadUrl, decodedFileData, {
                 headers: {
@@ -107,7 +107,7 @@ const upload = {
             }
         
             console.log(file.uploaderName);
-            if (req.user.user == file.uploaderName) {
+            if (file.access.includes(req.user._id)) {
                 try {
                     let type = "image/png";
                     if (file.fileType == "jpg" || file.fileType == "jpeg"){

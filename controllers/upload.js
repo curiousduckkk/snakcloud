@@ -4,10 +4,17 @@ const File = require("../models/File");
 
 const upload = {
     GetUploadURL: async (req, res, fileName, fileType) => {
+        let type = "";
+        if (fileType == "png"){
+            type =  "image/png";
+        }
+        else if (fileType == "jpg" || fileType == "jpeg"){
+            type = "image/jpeg";
+        }
         const requestBody = {
             operationName: "GetUploadUrl",
             variables: {
-                mediaFormat: "image/png"
+                mediaFormat: type
             },
             query: "query GetUploadUrl($mediaFormat: String!) {\n  uploadUrl(mediaFormat: $mediaFormat) {\n    uploadUrl\n    contentObjectBase64\n    contentUrl\n    urlHeaders {\n      key\n      value\n      __typename\n    }\n    __typename\n  }\n}\n"
         };
@@ -54,14 +61,22 @@ const upload = {
     UploadFile: async (req, res) => {
         const { fileName, fileData } = req.body;
         try {
+            
             // Decode base64 file data
             const decodedFileData = Buffer.from(fileData, 'base64');
-        
-            const uploadUrl = await upload.GetUploadURL(req, res, fileName); // Call GetUploadURL from upload object
+            const fileType = await upload.Extension(req, res, fileName);
+            let type = "";
+            if (fileType == "png"){
+                type =  "image/png";
+            }
+            else if (fileType == "jpg" || fileType == "jpeg"){
+                type = "image/jpeg";
+            }
+            const uploadUrl = await upload.GetUploadURL(req, res, fileName, fileType); // Call GetUploadURL from upload object
             console.log('Upload URL:', uploadUrl);
             const response = await axios.put(uploadUrl, decodedFileData, {
                 headers: {
-                    'Content-Type': "image/png" // Set the content type header based on file type
+                    'Content-Type': type
                 }
             });
         

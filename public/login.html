@@ -36,9 +36,7 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Save token to local storage or session storage
           localStorage.setItem('token', data.token);
-          // Redirect to another page or display success message
           window.location.href = 'upload.html';
         } else {
           document.getElementById('message').textContent = data.error;

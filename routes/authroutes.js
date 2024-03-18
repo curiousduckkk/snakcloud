@@ -7,7 +7,8 @@ const middleware = require("../middlewares/jwt");
 
 router.post("/signup", auth.signup);
 router.post("/login", auth.login);
-router.post("/upload", middleware,upload.GetUploadURL);
+router.get("/upload", middleware,upload.GetUploadURL);
+router.post("/uploadfile", middleware, upload.UploadFile);
 
 
 module.exports= router;

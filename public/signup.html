@@ -37,6 +37,7 @@
 
         if (response.ok) {
           document.getElementById('message').textContent = data.message;
+          window.location.href = 'upload.html';
         } else {
           document.getElementById('message').textContent = data.error;
         }

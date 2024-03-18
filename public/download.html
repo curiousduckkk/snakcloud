@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GET Request with Authorization Header</title>
+</head>
+<body>
+    <h1>GET Request with Authorization Header</h1>
+
+    <button onclick="sendGetRequest()">Send GET Request</button>
+
+    <script>
+        function sendGetRequest() {
+            // Retrieve authorization token from local storage
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert('Authorization token not found in local storage');
+                return;
+            }
+
+            const url = 'http://localhost:8080/download/65f82ee60dda39293639e93d';
+
+            // Send GET request with authorization header
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Handle the response
+                console.log('Response received:', blob);
+                // You can do further processing here, like downloading the blob or displaying it
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        }
+    </script>
+</body>
+</html>

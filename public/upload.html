@@ -8,9 +8,11 @@
 <body>
     <h2>Upload Image</h2>
     <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" accept="image/*" name="fileInput">
+        <input type="file" id="fileInput" accept="*/*" name="fileInput">
         <button type="submit">Upload</button>
     </form>
+
+    <div id="uploadResponse"></div>
 
     <script>
 document.getElementById('uploadForm').addEventListener('submit', async function(event) {
@@ -48,17 +50,21 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
             });
 
             if (response.ok) {
+                const responseData = await response.json();
+                console.log(responseData['link']);
+                const downloadLink = responseData.downloadLink;
+                window.open(responseData['link'], '_blank');   
+                // const uploadResponseElement = document.getElementById('uploadResponse');
+                // uploadResponseElement.innerHTML = `<a href="${downloadLink}" target="_blank">Download File</a>`;
+
                 console.log('File uploaded to your API successfully');
-                // Handle successful upload
             } else {
                 console.error('Failed to upload file to your API');
-                // Handle failed upload
             }
         };
         reader.readAsDataURL(file);
     } catch (error) {
         console.error('Error:', error);
-        // Handle error
     }
 });
     </script>

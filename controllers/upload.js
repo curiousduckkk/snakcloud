@@ -1,14 +1,13 @@
 const axios = require('axios');
-const User = require("../models/User");
 const File = require("../models/File");
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+
 
 const upload = {
     GetUploadURL: async (req, res, fileName, fileType) => {
-        let type = "";
-        if (fileType == "png"){
-            type =  "image/png";
-        }
-        else if (fileType == "jpg" || fileType == "jpeg"){
+        let type = "image/png";
+        if (fileType == "jpg" || fileType == "jpeg"){
             type = "image/jpeg";
         }
         const requestBody = {
@@ -65,11 +64,8 @@ const upload = {
             // Decode base64 file data
             const decodedFileData = Buffer.from(fileData, 'base64');
             const fileType = await upload.Extension(req, res, fileName);
-            let type = "";
-            if (fileType == "png"){
-                type =  "image/png";
-            }
-            else if (fileType == "jpg" || fileType == "jpeg"){
+            let type = "image/png";
+            if (fileType == "jpg" || fileType == "jpeg"){
                 type = "image/jpeg";
             }
             const uploadUrl = await upload.GetUploadURL(req, res, fileName, fileType); // Call GetUploadURL from upload object
@@ -82,7 +78,11 @@ const upload = {
         
             if (response.status === 200) {
                 console.log('File uploaded successfully');
-                return response.data;
+                const file = await File.findOne({ uploadUrl })
+                let link = "http://localhost:8080/download/"+file._id;
+                return res.status(200).json({
+                    "link":link
+                });
             } else {
                 throw new Error('Failed to upload file');
             }
@@ -90,7 +90,47 @@ const upload = {
             console.error('Error uploading file:', error);
             throw error;
         }
+    },
+
+    DownloadFile: async(req, res) => {
+        const {id}= req.params;
+        if (id.length > 24) {
+            return res.status(400).json({ error: "Invalid file id" });
+        }
+        try {
+            const file = await File.findOne({_id: new ObjectId(id)});
+
+            if (!file) {
+                return res.status(404).json({ error: "File not found" });
+            }
+        
+            console.log(file.uploaderName);
+            if (req.user.user == file.uploaderName) {
+                try {
+                    let type = "image/png";
+                    if (file.fileType == "jpg" || file.fileType == "jpeg"){
+                        type = "image/jpeg";
+                    }else if(file.fileType == "pdf"){
+                        type = "application/pdf"
+                    }                           
+                    const response = await axios.get(file.contentUrl, { responseType: 'arraybuffer' });
+                    res.set('Content-Type', type);
+                    res.status(response.status).send(response.data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    res.status(500).send('Internal Server Error');
+                }
+            }
+            
+        // console.log(req.user.user);
+        return res.status(403).json({
+            "message": "Unauthorized"
+        })
+    }catch (error) {
+        console.error('Error uploading file:', error);
+        throw error;
     }
+    },
 };
 
 module.exports = upload;

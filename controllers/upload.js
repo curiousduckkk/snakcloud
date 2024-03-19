@@ -94,6 +94,25 @@ const upload = {
         }
     },
 
+    GetAllFileByUsers: async (req, res) => {
+        try {
+            const username = req.user.user;
+            console.log(username);
+            const files = await File.find({ uploaderName: username });
+            if (!files || files.length === 0) {
+                return res.status(404).json({ error: "No files found" });
+            }
+            const links = files.map(file => ({
+                fileName: file.fileName,
+                downloadLink: "https://snakcloud.onrender.com/download/" + file._id
+            }));    
+            return res.status(200).json({ files: links });
+            } catch (error) {
+            console.error("Error in GetAllFileByUsers:", error);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+    },    
+
     DownloadFile: async(req, res) => {
         const {id}= req.params;
         if (id.length > 24) {

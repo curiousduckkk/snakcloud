@@ -22,7 +22,7 @@ const upload = {
         const headers = {
             'Content-Type': 'application/json',
             'Cookie': 'sc-a-nonce=2666e29c-8142-4ac2-b37b-0f20339058c0;',
-            'Authorization': 'Bearer hCgwKCjE3MDk1NzUyMTESzAHfiXKyn0nnQ8Cun_GOuExMhGuZaWB0bAWMCh0WzdrPL5bxEF9uRb4Po66sO2hiNP1-FayP3luNvnIeEQqAVqai69_rFnAd_pXXb3PsgJTb5OPRKyXfVYO9CB2khZJntV84v9YApRL7csAQh3vSvej1yjNBp3i3sGxFILqo49Zja9pEPV4MeOSGS1gISbScfcpk1FnzXxXp_nOl37VYUVdwRYoUKKGWNoPaC5_ZPXrVq-zQ0uHiVf_yzXHxYnV5OcMpqwS2M9kS6HhSAOU',
+            'Authorization': 'Bearer hCgwKCjE3MDk1NzUyMTESzAGXsH4okpHLQWuru21HqctrSfXVJoFQv9z_1Q11vcCAHNvJYneR4d6ONAC6LpKj5_OoZFA-0l-laz7tDt0z5kQtw8NpKFMUYKRjRAtRMUpYuA5WQz9mcOT2XezhqAwVCqhHzUSptug-TgKNT6psrGayF8d4T-0XvBCLoFRTyGSjO2xyan-WYu_87MUNQ9pXi5yyeGBrWHPEUkKe9Rv3o9nEtYFLujCCSItX1Tj5zBbJLarsoHc1sqbvmWwUC7cWc3z11lVI38jGpj0VnC8',
             'Origin': 'https://my.snapchat.com',
             'Referer': 'https://my.snapchat.com/'
         };

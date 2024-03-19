@@ -11,5 +11,5 @@ router.get("/upload", middleware,upload.GetUploadURL);
 router.post("/uploadfile", middleware, upload.UploadFile);
 router.get("/download/:id", middleware, upload.DownloadFile);
 router.post("/access", middleware, upload.Access);
-
+router.get("/files/all", middleware, upload.GetAllFileByUsers)
 module.exports= router;
